@@ -23,7 +23,12 @@
   <!-- 曲线图容器 -->
   <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
 </main>
- const chartData = <%- JSON.stringify(chartData) %>;
- <!-- console.log('Chart Data:', chartData); // 调试输出 -->
+
+<script>
+  // 从后端传递的 chartData 中提取 labels 和 values，定义为全局变量
+  window.chartLabels = <%- JSON.stringify(chartData.labels) %>; 
+  window.chartValues = <%- JSON.stringify(chartData.values) %>;
+</script>
+
 </div> <!-- 关闭sidebar.ejs中的.container-fluid -->
 <%- include('partials/footer') %>

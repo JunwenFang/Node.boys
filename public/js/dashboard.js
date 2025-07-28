@@ -5,10 +5,10 @@ document.addEventListener('DOMContentLoaded', () => {
     new Chart(ctx, {
       type: 'line',
       data: {
-        labels: window.chartLabels || ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+        labels: window.chartLabels,
         datasets: [{
           label: '数据趋势',
-          data: window.chartValues || [65, 59, 80, 81, 56, 55, 40],
+          data: window.chartValues,
           fill: false,
           borderColor: 'rgb(75, 192, 192)',
           tension: 0.1
