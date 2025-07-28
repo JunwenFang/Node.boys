@@ -36,6 +36,17 @@ app.get('/table', (req, res) => {
   });
 });
 
+app.get('/login', (req, res) => {
+  res.render('login'); // assumes login.ejs is in the views folder
+});
+
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  // Add login logic here (e.g. check credentials)
+  res.send(`Logged in as ${username}`);
+});
+
+
 // 启动服务器
 app.listen(3000, () => {
   console.log('服务器运行在 http://localhost:3000');
