@@ -1,0 +1,29 @@
+<!-- 继承公共头部 -->
+<%- include('partials/header', { pageTitle: '曲线图 | Dashboard' }) %>
+
+<!-- 继承侧边栏（标记当前活跃页） -->
+<%- include('partials/sidebar', { activePage: 'dashboard' }) %>
+
+<!-- 主内容区：曲线图 -->
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">曲线图数据</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+      <div class="btn-group me-2">
+        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+        <span data-feather="calendar"></span>
+        <%= dateRange || 'This week' %> <!-- 动态日期范围 -->
+      </button>
+    </div>
+  </div>
+
+  <!-- 曲线图容器 -->
+  <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+</main>
+ const chartData = <%- JSON.stringify(chartData) %>;
+ <!-- console.log('Chart Data:', chartData); // 调试输出 -->
+</div> <!-- 关闭sidebar.ejs中的.container-fluid -->
+<%- include('partials/footer') %>

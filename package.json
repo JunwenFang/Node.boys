@@ -1,0 +1,16 @@
+{
+  "name": "node.boys",
+  "version": "1.0.0",
+  "description": "financial portfolio management",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "jest"
+  },
+  "author": "hugo",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  }
+}
