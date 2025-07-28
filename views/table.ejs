@@ -1,0 +1,44 @@
+<!-- 继承公共头部 -->
+<%- include('partials/header', { pageTitle: '表格数据 | Dashboard' }) %>
+
+<!-- 继承侧边栏 -->
+<%- include('partials/sidebar', { activePage: 'orders' }) %>
+
+<!-- 主内容区：表格 -->
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">表格数据</h1>
+    <!-- 同图表页的按钮组 -->
+  </div>
+
+  <!-- 表格区域 -->
+  <h2>数据列表</h2>
+  <div class="table-responsive">
+    <table class="table table-striped table-sm">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Header</th>
+          <th scope="col">Header</th>
+          <th scope="col">Header</th>
+          <th scope="col">Header</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- 用EJS循环渲染表格数据 -->
+        <% tableData.forEach(item => { %>
+        <tr>
+          <td><%= item.id %></td>
+          <td><%= item.col1 %></td>
+          <td><%= item.col2 %></td>
+          <td><%= item.col3 %></td>
+          <td><%= item.col4 %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+</div> <!-- 关闭sidebar.ejs中的.container-fluid -->
+<%- include('partials/footer') %>
