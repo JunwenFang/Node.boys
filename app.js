@@ -10,9 +10,14 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 模拟数据
-const chartData = {
-  labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+const lineData = {
+  labels: ['7-1', '7-2', '7-3', '7-4', '7-5', '7-6', '7-7'],
   values: [65, 59, 80, 81, 56, 55, 40]
+};
+
+const pieData = {
+  labels: ['Cash', 'Investment'],
+  values: [60,40]
 };
 
 const tableData = [
@@ -21,11 +26,23 @@ const tableData = [
   // 更多数据...
 ];
 
+// 模拟用户数据
+const userData = {
+  name: '张三',
+  accountType: 'VIP账户',
+  balance: 12500,
+  cash: 7500,
+  investments: 5000
+};
+
 // 路由：曲线图页面
 app.get('/', (req, res) => {
   res.render('chart', {
     dateRange: '本周',
-    chartData: chartData // 传递图表数据到前端
+    lineData: lineData, // 传递折线图数据到前端
+    pieData: pieData, // 传递饼图数据到前端
+    user: userData // 传递用户数据到前端,
+    
   });
 });
 
