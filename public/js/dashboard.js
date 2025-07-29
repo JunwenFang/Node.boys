@@ -16,6 +16,39 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 初始化饼图
+  const pieCtx = document.getElementById('pieChart');
+  if (pieCtx && (window.pieLabels || window.pieValues)) {
+    new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: window.pieLabels,
+        datasets: [{
+          data: window.pieValues,
+          backgroundColor: (window.pieValues ).map((_, i) => {
+            const colors = [
+              'rgba(255, 99, 132, 0.7)',
+              'rgba(54, 162, 235, 0.7)',
+              'rgba(255, 206, 86, 0.7)',
+              'rgba(75, 192, 192, 0.7)',
+              'rgba(153, 102, 255, 0.7)'
+            ];
+            return colors[i % colors.length];
+          }),
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        }
+      }
+    });
+  }
 });
 // // public/js/dashboard.js
 // document.addEventListener('DOMContentLoaded', () => {
