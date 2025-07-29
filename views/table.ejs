@@ -116,7 +116,8 @@
     document.getElementById('editForm').action = `/stocks/update/${data.id}`;
     document.getElementById('edit-stockName').value = data.stockName;
     document.getElementById('edit-ticker').value = data.ticker;
-    document.getElementById('edit-buyPrice').value = data.buyPrice;
+    // document.getElementById('edit-buyPrice').value = (data.TbuyPrice/data.quantity).toFixed(2);
+     document.getElementById('edit-buyPrice').value = data.TbuyPrice;
     document.getElementById('edit-quantity').value = data.quantity;
   }
 
