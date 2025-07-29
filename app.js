@@ -1,6 +1,16 @@
+const { ok } = require('assert');
 const express = require('express');
 const app = express();
+const mysql = require("mysql2")
 const path = require('path');
+
+const pool = mysql.createPool({
+  host: "110.41.47.134",
+  port: 9000,
+  user: "root",
+  password: "root",
+  database:"portfolio_manager"
+})
 
 // 配置EJS模板引擎
 app.set('view engine', 'ejs');
@@ -8,6 +18,7 @@ app.set('views', path.join(__dirname, 'views'));
 
 // 静态资源目录（存放dashboard.js等）
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
 
 // 模拟数据
 const chartData = {
@@ -42,8 +53,18 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
-  // Add login logic here (e.g. check credentials)
-  res.send(`Logged in as ${username}`);
+  pool.query('select * from users where username = ? and password = ?',
+    [username,password],(err,result)=>{
+      if(err) throw err;
+      if(result.length!=1){
+        res.status(500);
+      }
+      res.json({
+        success:true,
+        msg: 'login success'
+      });
+    }
+  );
 });
 
 
