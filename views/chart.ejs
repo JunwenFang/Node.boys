@@ -7,7 +7,7 @@
 <!-- 主内容区：曲线图 -->
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">曲线图数据</h1>
+    <h1 class="h2">账户数据概览</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
       <div class="btn-group me-2">
         <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
@@ -20,14 +20,60 @@
     </div>
   </div>
 
-  <!-- 曲线图容器 -->
-  <canvas class="my-4 w-100" id="myChart" width="900" height="380"></canvas>
+  <div class="row">
+    <!-- 左侧列 -->
+    <div class="col-md-6">
+      <!-- 饼图容器 -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5>资产分布</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="pieChart" width="400" height="200" 
+            data-cash="<%= user?.cash || 60 %>"
+            data-investments="<%= user?.investments || 40 %>">
+          </canvas>
+        </div>
+      </div>
+      
+      <!-- 用户信息框 -->
+      <div class="card">
+        <div class="card-header">
+          <h5>账户信息</h5>
+        </div>
+        <div class="card-body">
+          <div id="userInfo">
+            <p><strong>用户名:</strong> <%= user?.name || '未登录' %></p>
+            <p><strong>账户类型:</strong> <%= user?.accountType || '普通账户' %></p>
+            <p><strong>当前存款:</strong> $<%= (user?.balance || 0).toLocaleString() %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧列 -->
+    <div class="col-md-6">
+      <!-- 曲线图容器 -->
+      <div class="card">
+        <div class="card-header">
+          <h5>历史趋势</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="myChart" width="400" height="400"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
 </main>
 
 <script>
-  // 从后端传递的 chartData 中提取 labels 和 values，定义为全局变量
-  window.chartLabels = <%- JSON.stringify(chartData.labels) %>; 
-  window.chartValues = <%- JSON.stringify(chartData.values) %>;
+  // 图表数据通过HTML元素属性传递
+  window.chartLabels = <%- JSON.stringify(lineData.labels || []) %>;
+  window.chartValues = <%- JSON.stringify(lineData.values || []) %>;
+
+  window.pieLabels = <%- JSON.stringify(pieData.labels || []) %>;
+  window.pieValues = <%- JSON.stringify(pieData.values || []) %>;
+  // 图表数据已通过HTML5 data属性传递
 </script>
 
 </div> <!-- 关闭sidebar.ejs中的.container-fluid -->
