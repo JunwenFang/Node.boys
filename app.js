@@ -69,12 +69,15 @@ app.get('/login', (req, res) => {
 // 股票数据存储
 let positions = []
 async function fetchPositions() {
-  pool.query('SELECT * FROM position', (err, results) => {
-    if (err) {
-      console.error(err);
-      return [];
-    }
-    positions = results;
+  return new Promise((resolve, reject) => {
+    pool.query('SELECT position_id, stock_name, stock_code, cost, quantity FROM position', (err, results) => {
+      if (err) {
+        console.error(err);
+        reject(err);
+      }
+      positions = results;
+      resolve(results);
+    });
   });
 };
   // 启用JSON请求体解析
@@ -96,10 +99,10 @@ async function fetchPositions() {
 
 // 添加持仓
 app.post('/stocks/add', (req, res) => {
-  const { stockName, ticker, TbuyPrice, quantity } = req.body;
+  const { stockName, ticker, buyPrice, quantity } = req.body;
   pool.query(
-    'INSERT INTO position (stock_name, stock_code, cost, quantity) VALUES (?, ?, ?, ?)',
-    [stockName, ticker, TbuyPrice, quantity],
+    'INSERT INTO `position` (stock_name, stock_code, cost, quantity, create_time) VALUES (?, ?, ?, ?, NOW())',
+    [stockName, ticker, buyPrice, quantity],
     (err, result) => {
       if (err) {
         console.error(err);
@@ -113,10 +116,10 @@ app.post('/stocks/add', (req, res) => {
 // 更新持仓
 app.post('/stocks/update/:id', (req, res) => {
   const id = parseInt(req.params.id);
-  const { stockName, ticker, TbuyPrice, quantity } = req.body;
+  const { stockName, ticker, buyPrice, quantity } = req.body;
   pool.query(
     'UPDATE position SET stock_name = ?, stock_code = ?, cost = ?, quantity = ? WHERE position_id = ?',
-    [stockName, ticker, TbuyPrice, quantity, id],
+    [stockName, ticker, buyPrice, quantity, id],
     (err, result) => {
       if (err) {
         console.error(err);
