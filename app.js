@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const mysql = require("mysql2")
 const path = require('path');
+const stockApi = require('./public/js/stockApi');
 
 const pool = mysql.createPool({
   host: "110.41.47.134",
@@ -52,7 +53,8 @@ const userData = {
 };
 
 // 路由：曲线图页面
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  await fetchMainChartData();
   res.render('chart', {
     dateRange: '本周',
     lineData: lineData, // 传递折线图数据到前端
@@ -80,6 +82,46 @@ async function fetchPositions() {
     });
   });
 };
+
+async function fetchMainChartData() {
+  await fetchPositions();
+  const recentDates = await stockApi.fetchRecentTradeDay(7);
+  let stock_codes = positions.map(row => row.stock_code).join(',');
+  let start_date = recentDates[0];
+  let end_date = recentDates[6];
+  try {
+    const items = await stockApi.fetchStockData(stock_codes, start_date, end_date);
+    //创建map,整理收盘价,通过[日期][股票代码]的方式存储
+    const priceMap = {};
+    for (const [code, date, close] of items) {
+      if (!priceMap[date]) priceMap[date] = {};
+      priceMap[date][code] = close;
+    }
+    let values = [];
+
+    // 整理数据为折线图格式
+    for(let i = 0; i < recentDates.length; i++) {
+      const date = recentDates[i];
+      let total = 0;
+      for (const position of positions) {
+        if (!position.stock_code) continue;
+        const price = priceMap[date] ? priceMap[date][position.stock_code] : 0;
+        total += price * position.quantity;
+        total -= position.cost;
+      }
+      values.push(total);
+    }
+    lineData.labels = recentDates;
+    lineData.values = values;
+    
+
+
+
+  } catch (error) {
+    console.error('获取股票数据失败:', error);
+  }
+}
+
   // 启用JSON请求体解析
   app.use(express.json());
 
