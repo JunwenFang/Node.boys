@@ -7,12 +7,53 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: window.chartLabels,
         datasets: [{
-          label: '数据趋势',
+          label: '收益率',
           data: window.chartValues,
           fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1
+          borderColor: 'rgba(54, 162, 235, 1)',
+          tension: 0.1,
+          pointBackgroundColor: 'rgba(255, 102, 0, 1)', // 鼠标悬停时的点也设置为橙色
         }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top'
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: '日期'
+            },
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.1)',
+              drawBorder: true,
+              drawOnChartArea: true,
+              drawTicks: true
+            }
+          },
+          y: {
+            display: true,
+            beginAtZero: true,
+            min: 0,
+            max: Math.max(...window.chartValues) * 1.2, // 动态设置最大值
+            title: {
+              display: true,
+              text: '收益率 (%)'
+            },
+            grid: {
+              display: false, // 不显示Y轴网格线
+              drawBorder: true,
+              drawOnChartArea: false,
+              drawTicks: true
+            }
+          }
+        }
       }
     });
   }
@@ -50,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  
   // 初始化投资比例柱状图
   const barCtx = document.getElementById('barChart');
   if (barCtx && window.barLabels && window.barCash && window.barInvestments) {
@@ -58,15 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: window.barLabels,
         datasets: [
-          {
-            label: '现金',
+          { label: '现金',
             data: window.barCash,
-            backgroundColor: 'rgba(75, 192, 192, 0.7)'
+            backgroundColor: 'rgba(0, 128, 0, 0.7)' 
           },
-          {
-            label: '证券',
+          { label: '证券',
             data: window.barInvestments,
-            backgroundColor: 'rgba(255, 206, 86, 0.7)'
+            backgroundColor: 'rgba(255, 0, 0, 0.7)' 
           }
         ]
       },
@@ -78,13 +118,32 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         },
         scales: {
+          x: {
+            display: true,
+            title: {
+              display: true, text: '日期'
+            },
+            grid: {
+              display: true,
+              color: 'rgba(0, 0, 0, 0.1)',
+              drawBorder: true,
+              drawOnChartArea: true,
+              drawTicks: true
+            }
+          },
           y: {
+            display: true,
             beginAtZero: true,
             min: 0,      // 明确指定最小值
             max: 100,    // 明确指定最大值
             title: {
-              display: true,
-              text: '百分比(%)'
+              display: true, text: '百分比(%)'
+            },
+            grid: {
+              display: false, // 不显示Y轴网格线
+              drawBorder: true,
+              drawOnChartArea: false,
+              drawTicks: true
             }
           }
         }
