@@ -44,14 +44,54 @@ const tableData = [
   { id: '2', col1: '数据5', col2: '数据6', col3: '数据7', col4: '数据8' },
   // 更多数据...
 ];
-// 模拟用户数据
-const userData = {
-  name: '张三',
-  accountType: 'VIP账户',
-  balance: 12500,
-  cash: 7500,
-  investments: 5000
-};
+// // 模拟用户数据
+// const userData = {
+//   name: '张三',
+//   accountType: 'VIP账户',
+//   balance: 12500,
+//   cash: 7500,
+//   investments: 5000
+// };
+
+const promisePool = pool.promise();
+
+// 在路由里获取真实用户数据
+async function fetchUserData(userId) {
+  // 1. 从 users 表取用户名和账户类型
+  const [userRows] = await promisePool.query(
+    `SELECT username FROM users WHERE id = ?`,
+    [userId]
+  );
+
+  const username = userRows[0].username;
+
+  // 2. 从 cash 表取可用现金
+  const [cashRows] = await promisePool.query(
+    `SELECT cash_quantity 
+       FROM cash 
+      WHERE user_id = ?`,
+    [userId]
+  );
+  const cash = cashRows.length ? cashRows[0].cash_quantity : 0;
+   // 3. 从 position 表合计 cost 作为证券价值
+   const [invRows] = await promisePool.query(
+    `SELECT IFNULL(SUM(cost),0) AS total_investment 
+       FROM position 
+      WHERE user_id = ?`,
+    [userId]
+  );
+  const investments = invRows[0].total_investment;
+
+  return {
+    name:        username,
+    accountType: "VIP账户",
+    balance:    parseFloat(cash)+parseFloat(investments), // 账户总余额 = 可用现金 + 证券价值
+    // balance:     cash + investments, // 账户总余额 = 可用现金 +
+    cash,
+    investments
+  };
+}
+
 
 app.get('/', (req, res) => {
   res.render('login');
@@ -59,17 +99,22 @@ app.get('/', (req, res) => {
 
 // 路由：曲线图页面
 app.get('/chart', async (req, res) => {
+  const userId = 1;
   await fetchMainChartData();
+  // 获取用户数据
+  const user = await fetchUserData(userId);
+  console.log('用户数据:', user);
   res.render('chart', {
     dateRange: '本周',
     lineData: lineData, // 传递折线图数据到前端
     pieData: pieData, // 传递饼图数据到前端
 
-    user: userData, // 传递用户数据到前端,
+    user: user, // 传递用户数据到前端,
     barData: barData // 新增：传递柱状图数据
 
   });
 });
+
 app.get('/login', (req, res) => {
   res.render('login'); // assumes login.ejs is in the views folder
 });
