@@ -100,9 +100,10 @@ async function fetchPositions() {
 // 添加持仓
 app.post('/stocks/add', (req, res) => {
   const { stockName, ticker, buyPrice, quantity } = req.body;
+
   pool.query(
-    'INSERT INTO `position` (stock_name, stock_code, cost, quantity, create_time) VALUES (?, ?, ?, ?, NOW())',
-    [stockName, ticker, buyPrice, quantity],
+    'INSERT INTO `position` (stock_name, stock_code, cost, quantity, create_time, user_id) VALUES (?, ?, ?, ?, NOW(), ?)',
+    [stockName, ticker, buyPrice, quantity, 1],
     (err, result) => {
       if (err) {
         console.error(err);
