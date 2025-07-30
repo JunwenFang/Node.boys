@@ -158,6 +158,47 @@ app.post('/stocks/delete/:id', (req, res) => {
   );
 });
 
+app.get('/stocks/details/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  pool.query(
+    'SELECT position_id, stock_name, stock_code, cost, quantity FROM position WHERE position_id = ?',
+    [id],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '获取持仓详情失败' });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      const position = results[0];
+      // 模拟获取最近7天收盘价
+      const history = [
+        { date: '2023-10-01', close: 100 },
+        { date: '2023-10-02', close: 102 },
+        { date: '2023-10-03', close: 101 },
+        { date: '2023-10-04', close: 103 },
+        { date: '2023-10-05', close: 104 },
+        { date: '2023-10-06', close: 105 },
+        { date: '2023-10-07', close: 106 }
+      ];
+      res.json({
+        id: position.position_id,
+        stockName: position.stock_name,
+        ticker: position.stock_code,
+        buyPrice: position.cost/position.quantity, // 平均买入价
+        quantity: position.quantity,
+        currentPrice: 0, // 模拟当前价格
+        history
+      });
+    }
+  );
+  // 查表/调用第三方 API 获取最近7天收盘价 history
+  // 返回 JSON: { id, stockName, ticker, buyPrice, quantity, currentPrice, history: [{date,close},…] }
+  return {}
+});
+
+
 
   app.post('/login', (req, res) => {
     const { username, password } = req.body;
