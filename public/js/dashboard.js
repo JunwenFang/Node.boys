@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: window.chartLabels,
         datasets: [{
-          label: '收益率',
+          label: '盈亏金额',
           data: window.chartValues,
           fill: false,
           borderColor: 'rgba(255, 102, 0, 1)',         
