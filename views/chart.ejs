@@ -1,24 +1,25 @@
 <!-- 继承公共头部 -->
 <%- include('partials/header', { pageTitle: '曲线图 | Dashboard' }) %>
 
-<!-- 继承侧边栏（标记当前活跃页） -->
-<%- include('partials/sidebar', { activePage: 'dashboard' }) %>
+  <!-- 继承侧边栏（标记当前活跃页） -->
+  <%- include('partials/sidebar', { activePage: 'dashboard' }) %>
 
-<!-- 主内容区：曲线图 -->
-<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">账户数据概览</h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-      <div class="btn-group me-2">
-        <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-        <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+    <!-- 主内容区：曲线图 -->
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+      <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">账户数据概览</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+          <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+            <span data-feather="calendar"></span>
+            <%= dateRange || 'This week' %> <!-- 动态日期范围 -->
+          </button>
+        </div>
       </div>
-      <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-        <span data-feather="calendar"></span>
-        <%= dateRange || 'This week' %> <!-- 动态日期范围 -->
-      </button>
-    </div>
-  </div>
 
   <div class="row align-items-stretch">
     <!-- 左侧列 -->
@@ -80,20 +81,30 @@
      
     </div>
 
-    <!-- 右侧列 -->
-    <div class="col-md-6 d-flex flex-column h-100">
-      <!-- 曲线图容器 -->
-      <div class="card h-100">
-        <div class="card-header">
-          <h5>历史趋势</h5>
-        </div>
-        <div class="card-body">
-          <canvas id="myChart" width="400" height="400"></canvas>
+        <!-- 右侧列 -->
+        <div class="col-md-6 d-flex flex-column" style="gap: 1rem;">
+          <!-- 曲线图容器 -->
+          <div class="card" style="flex: 1;">
+            <div class="card-header">
+              <h5>历史趋势</h5>
+            </div>
+            <div class="card-body">
+              <canvas id="myChart" width="400" height="200"></canvas>
+            </div>
+          </div>
+
+          <!-- 投资比例柱状图模块 -->
+        <div class="card" style="flex: 1;">
+           <div class="card-header">
+            <h5>投资比例（现金 vs 权益）</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="barChart" width="300" height="200"></canvas>
+          </div>
+          
         </div>
       </div>
-    </div>
-  </div>
-</main>
+    </main>
 <!-- 现金流修改弹窗 (使用与参考弹窗一致的样式class) -->
 <div class="modal fade" id="cashModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">

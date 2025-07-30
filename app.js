@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const mysql = require("mysql2")
 const path = require('path');
+const stockApi = require('./public/js/stockApi');
 
 const pool = mysql.createPool({
   host: "110.41.47.134",
@@ -23,7 +24,7 @@ app.use(express.json());
 // 模拟数据
 const lineData = {
   labels: ['7-1', '7-2', '7-3', '7-4', '7-5', '7-6', '7-7'],
-  values: [65, 59, 80, 81, 56, 55, 40]
+  values: [0, 10, 15, 12, 18, 28, 40]
 };
 
 const pieData = {
@@ -31,14 +32,12 @@ const pieData = {
   values: [60, 40]
 };
 
-
 // 新增：柱状图数据（按时间序列，cash和证券价值比例）
 const barData = {
   labels: ['7-1', '7-2', '7-3', '7-4', '7-5', '7-6', '7-7'],
-  cash:   [60, 62, 58, 65, 63, 61, 59], // 百分比
-  investments: [40, 38, 42, 35, 37, 39, 41] // 百分比
+  cash:   [100, 62, 58, 65, 63, 61, 59], // 百分比
+  investments: [0, 38, 42, 35, 37, 39, 41] // 百分比
 };
-
 
 const tableData = [
   { id: '1', col1: '数据1', col2: '数据2', col3: '数据3', col4: '数据4' },
@@ -55,7 +54,8 @@ const userData = {
 };
 
 // 路由：曲线图页面
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  await fetchMainChartData();
   res.render('chart', {
     dateRange: '本周',
     lineData: lineData, // 传递折线图数据到前端
@@ -85,6 +85,46 @@ async function fetchPositions() {
     });
   });
 };
+
+async function fetchMainChartData() {
+  await fetchPositions();
+  const recentDates = await stockApi.fetchRecentTradeDay(7);
+  let stock_codes = positions.map(row => row.stock_code).join(',');
+  let start_date = recentDates[0];
+  let end_date = recentDates[6];
+  try {
+    const items = await stockApi.fetchStockData(stock_codes, start_date, end_date);
+    //创建map,整理收盘价,通过[日期][股票代码]的方式存储
+    const priceMap = {};
+    for (const [code, date, close] of items) {
+      if (!priceMap[date]) priceMap[date] = {};
+      priceMap[date][code] = close;
+    }
+    let values = [];
+
+    // 整理数据为折线图格式
+    for(let i = 0; i < recentDates.length; i++) {
+      const date = recentDates[i];
+      let total = 0;
+      for (const position of positions) {
+        if (!position.stock_code) continue;
+        const price = priceMap[date] ? priceMap[date][position.stock_code] : 0;
+        total += price * position.quantity;
+        total -= position.cost;
+      }
+      values.push(total);
+    }
+    lineData.labels = recentDates;
+    lineData.values = values;
+    
+
+
+
+  } catch (error) {
+    console.error('获取股票数据失败:', error);
+  }
+}
+
   // 启用JSON请求体解析
   app.use(express.json());
 
@@ -157,6 +197,83 @@ app.post('/stocks/delete/:id', (req, res) => {
     }
   );
 });
+
+app.get('/stocks/details/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  pool.query(
+    'SELECT position_id, stock_name, stock_code, cost, quantity FROM position WHERE position_id = ?',
+    [id],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '获取持仓详情失败' });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      const position = results[0];
+      // 模拟获取最近7天收盘价
+      const history = [
+        { date: '2023-10-01', close: 100 },
+        { date: '2023-10-02', close: 102 },
+        { date: '2023-10-03', close: 101 },
+        { date: '2023-10-04', close: 103 },
+        { date: '2023-10-05', close: 104 },
+        { date: '2023-10-06', close: 105 },
+        { date: '2023-10-07', close: 106 }
+      ];
+      res.json({
+        id: position.position_id,
+        stockName: position.stock_name,
+        ticker: position.stock_code,
+        buyPrice: position.cost/position.quantity, // 平均买入价
+        quantity: position.quantity,
+        currentPrice: 0, // 模拟当前价格
+        history
+      });
+    }
+  );
+});
+
+app.post('/stocks/increase/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const quantity = parseInt(req.body.amount, 10);
+  pool.query(
+    'UPDATE position SET quantity = quantity + ? WHERE position_id = ?',
+    [quantity, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '增加持仓失败' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+app.post('/stocks/decrease/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  // const { quantity } = req.body;
+  const quantity = parseInt(req.body.amount, 10);
+  pool.query(
+    'UPDATE position SET quantity = quantity - ? WHERE position_id = ?',
+    [quantity, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '减少持仓失败' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
 
 
   app.post('/login', (req, res) => {
