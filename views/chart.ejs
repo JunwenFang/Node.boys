@@ -1,8 +1,9 @@
 <!-- 继承公共头部 -->
 <%- include('partials/header', { pageTitle: '曲线图 | Dashboard' }) %>
 
-  <!-- 继承侧边栏（标记当前活跃页） -->
-  <%- include('partials/sidebar', { activePage: 'dashboard' }) %>
+<!-- 继承侧边栏（标记当前活跃页） -->
+<%- include('partials/sidebar', { activePage: 'dashboard' }) %>
+
 
     <!-- 主内容区：曲线图 -->
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
@@ -25,7 +26,7 @@
     <!-- 左侧列 -->
     <div class="col-md-6 d-flex flex-column h-100">
       <!-- 用户信息框 -->
-        <div class="card flex-grow-1">
+        <div class="card mb-4 flex-grow-1">
         <div class="card-header">
           <h5>账户信息</h5>
         </div>
@@ -50,7 +51,6 @@
                 <%= ((user?.cash || 0) + (user?.investments || 0)).toLocaleString() %>
               </span>
             </p>
-
           </div>
         </div>
       </div>
@@ -67,9 +67,6 @@
           ></canvas>
         </div>
       </div>
-      
-      
-      
      
     </div>
 
