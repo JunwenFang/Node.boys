@@ -32,7 +32,7 @@
             <div class="card-body">
               <div id="userInfo">
                 <p><strong>用户名:</strong>
-                  <%= user?.name || '未登录' %>
+                  <%= user?.name %>
                 </p>
                 <p><strong>账户类型:</strong>
                   <%= user?.accountType || '普通账户' %>
@@ -62,7 +62,7 @@
                 <p>
                   <strong>总资产价值:</strong>
                   $<span id="total-value">
-                    <%= ((user?.cash || 0) + (user?.investments || 0)).toLocaleString() %>
+                    <%= (user?.balance || 0).toLocaleString() + '.00' %>
                   </span>
                 </p>
 
