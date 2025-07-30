@@ -62,8 +62,8 @@
         </div>
         <div class="card-body">
           <canvas id="pieChart" width="300" height="200" 
-             data-cash="<%= (user?.cash || 60).toFixed(2) %>"
-             data-investments="<%= (user?.investments || 40).toFixed(2) %>"
+             data-cash="<%= user?.cash || 60 %>"
+             data-investments="<%= user?.investments || 40 %>"
           ></canvas>
         </div>
       </div>
