@@ -32,11 +32,14 @@ const pieData = {
   values: [60, 40]
 };
 
-// const tableData = [
-//   { id: '1', col1: 'random', col2: 'data', col3: 'placeholder', col4: 'text' },
-//   { id: '2', col1: 'placeholder', col2: 'irrelevant', col3: 'visual', col4: 'layout' },
-//   // 更多数据...
-// ];
+
+// 新增：柱状图数据（按时间序列，cash和证券价值比例）
+const barData = {
+  labels: ['7-1', '7-2', '7-3', '7-4', '7-5', '7-6', '7-7'],
+  cash:   [60, 62, 58, 65, 63, 61, 59], // 百分比
+  investments: [40, 38, 42, 35, 37, 39, 41] // 百分比
+};
+
 
 const tableData = [
   { id: '1', col1: '数据1', col2: '数据2', col3: '数据3', col4: '数据4' },
@@ -59,7 +62,9 @@ app.get('/', async (req, res) => {
     dateRange: '本周',
     lineData: lineData, // 传递折线图数据到前端
     pieData: pieData, // 传递饼图数据到前端
-    user: userData // 传递用户数据到前端,
+
+    user: userData, // 传递用户数据到前端,
+    barData: barData // 新增：传递柱状图数据
 
   });
 });
@@ -194,6 +199,83 @@ app.post('/stocks/delete/:id', (req, res) => {
     }
   );
 });
+
+app.get('/stocks/details/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+  pool.query(
+    'SELECT position_id, stock_name, stock_code, cost, quantity FROM position WHERE position_id = ?',
+    [id],
+    (err, results) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '获取持仓详情失败' });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      const position = results[0];
+      // 模拟获取最近7天收盘价
+      const history = [
+        { date: '2023-10-01', close: 100 },
+        { date: '2023-10-02', close: 102 },
+        { date: '2023-10-03', close: 101 },
+        { date: '2023-10-04', close: 103 },
+        { date: '2023-10-05', close: 104 },
+        { date: '2023-10-06', close: 105 },
+        { date: '2023-10-07', close: 106 }
+      ];
+      res.json({
+        id: position.position_id,
+        stockName: position.stock_name,
+        ticker: position.stock_code,
+        buyPrice: position.cost/position.quantity, // 平均买入价
+        quantity: position.quantity,
+        currentPrice: 0, // 模拟当前价格
+        history
+      });
+    }
+  );
+});
+
+app.post('/stocks/increase/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const quantity = parseInt(req.body.amount, 10);
+  pool.query(
+    'UPDATE position SET quantity = quantity + ? WHERE position_id = ?',
+    [quantity, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '增加持仓失败' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+app.post('/stocks/decrease/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  // const { quantity } = req.body;
+  const quantity = parseInt(req.body.amount, 10);
+  pool.query(
+    'UPDATE position SET quantity = quantity - ? WHERE position_id = ?',
+    [quantity, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '减少持仓失败' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
 
 
   app.post('/login', (req, res) => {

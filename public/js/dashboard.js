@@ -49,6 +49,48 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // 初始化投资比例柱状图
+  const barCtx = document.getElementById('barChart');
+  if (barCtx && window.barLabels && window.barCash && window.barInvestments) {
+    new Chart(barCtx, {
+      type: 'bar',
+      data: {
+        labels: window.barLabels,
+        datasets: [
+          {
+            label: '现金',
+            data: window.barCash,
+            backgroundColor: 'rgba(75, 192, 192, 0.7)'
+          },
+          {
+            label: '证券',
+            data: window.barInvestments,
+            backgroundColor: 'rgba(255, 206, 86, 0.7)'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top'
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            min: 0,      // 明确指定最小值
+            max: 100,    // 明确指定最大值
+            title: {
+              display: true,
+              text: '百分比(%)'
+            }
+          }
+        }
+      }
+    });
+  }
 });
 // // public/js/dashboard.js
 // document.addEventListener('DOMContentLoaded', () => {

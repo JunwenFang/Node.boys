@@ -47,20 +47,26 @@
       </thead>
       <tbody>
         <% tableData.forEach(item => { %>
-        <tr>
+        <tr style="cursor:pointer;" onclick="showDetails(<%= item.id %>)">
           <td><%= item.id %></td>
           <td><%= item.stockName %></td>
           <td><%= item.ticker %></td>
-          <td><%= (item.TbuyPrice/item.quantity).toFixed(2) %></td>
+          <td><%= (item.TbuyPrice / item.quantity).toFixed(2) %></td>
           <td><%= item.quantity %></td>
           <td><%= item.currentPrice %></td>
           <td>
-            <button class="btn btn-sm btn-outline-primary me-1"
-                    data-bs-toggle="modal"
-                    data-bs-target="#editModal"
-                    onclick='populateModal(<%- JSON.stringify(item) %>)'>编辑</button>
+            <button class="btn btn-sm btn-outline-success me-1"
+                    onclick='event.stopPropagation(); openQuantityModal("increase", <%- JSON.stringify(item) %>)'>
+              增加
+            </button>
+            <button class="btn btn-sm btn-outline-warning me-1"
+                    onclick='event.stopPropagation(); openQuantityModal("decrease", <%- JSON.stringify(item) %>)'>
+              减少
+            </button>
             <button class="btn btn-sm btn-outline-danger"
-                    onclick="handleDelete(<%= item.id %>)">删除</button>
+                    onclick='event.stopPropagation(); handleDelete(<%= item.id %>)'>
+              删除
+            </button>
           </td>
         </tr>
         <% }) %>
@@ -69,40 +75,24 @@
   </div>
 </main>
 
-</div>
-<%- include('partials/footer') %>
-
-<!-- 编辑模态框 -->
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+<!-- 修改数量模态框 -->
+<div class="modal fade" id="quantityModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
-    <form id="editForm">
+    <form id="quantityForm">
       <div class="modal-content">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title">编辑股票信息</h5>
+        <div class="modal-header bg-secondary text-white">
+          <h5 class="modal-title" id="quantityModalTitle">修改数量</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body p-3">
+        <div class="modal-body">
+          <input type="hidden" name="id" id="quantity-id">
           <div class="mb-3">
-            <label for="edit-stockName" class="form-label">股票名称</label>
-            <input type="text" name="stockName" id="edit-stockName" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="edit-ticker" class="form-label">股票代码</label>
-            <input type="text" name="ticker" id="edit-ticker" class="form-control" required>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label">买入价格</label>
-              <input type="number" step="0.01" name="buyPrice" id="edit-buyPrice" class="form-control" required>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">数量</label>
-              <input type="number" name="quantity" id="edit-quantity" class="form-control" required>
-            </div>
+            <label id="quantityLabel" class="form-label">更改数量</label>
+            <input type="number" name="amount" id="quantity-amount" class="form-control" required>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="submit" class="btn btn-success">保存</button>
+          <button type="submit" class="btn btn-success">提交</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
         </div>
       </div>
@@ -110,76 +100,134 @@
   </div>
 </div>
 
-<!-- JavaScript 部分 -->
+<!-- 详情模态框 -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="detailModalTitle">股票详情</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <canvas id="detailChart" height="100"></canvas>
+        <hr>
+        <div id="detailInfo" class="mt-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-  function populateModal(data) {
-    document.getElementById('editForm').action = `/stocks/update/${data.id}`;
-    document.getElementById('edit-stockName').value = data.stockName;
-    document.getElementById('edit-ticker').value = data.ticker;
-    document.getElementById('edit-buyPrice').value = (data.TbuyPrice/data.quantity).toFixed(2);
-    //  document.getElementById('edit-buyPrice').value = data.TbuyPrice;
-    document.getElementById('edit-quantity').value = data.quantity;
+  let quantityAction = null;
+  let detailChart = null;
+
+  // 打开增加/减少数量模态框
+  function openQuantityModal(action, data) {
+    quantityAction = action;
+    document.getElementById("quantity-id").value = data.id;
+    document.getElementById("quantity-amount").value = "";
+    const title = action === "increase" ? "增加数量" : "减少数量";
+    const label  = action === "increase"
+      ? "请输入要增加的数量："
+      : "请输入要减少的数量：";
+    document.getElementById("quantityModalTitle").textContent = title;
+    document.getElementById("quantityLabel").textContent = label;
+    new bootstrap.Modal(document.getElementById("quantityModal")).show();
   }
 
-  document.getElementById("addForm").addEventListener("submit", async function (e) {
+  // 提交数量变更
+  document.getElementById("quantityForm").addEventListener("submit", async e => {
     e.preventDefault();
-    const form = e.target;
-    const data = {
-      stockName: form.stockName.value,
-      ticker: form.ticker.value,
-      buyPrice: parseFloat(form.buyPrice.value),
-      quantity: parseInt(form.quantity.value)
-    };
-
-    const response = await fetch("/stocks/add", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+    const id     = document.getElementById("quantity-id").value;
+    const amount = parseInt(document.getElementById("quantity-amount").value, 10);
+    const res = await fetch(`/stocks/${quantityAction}/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount })
     });
-
-    if (response.ok) {
-      location.reload();
-    } else {
-      alert("添加失败，请检查输入");
-    }
+    if (res.ok) location.reload();
+    else alert('操作失败，请稍后重试');
   });
 
-  document.getElementById("editForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
-    const form = e.target;
-    const action = form.action;
-    const data = {
-      stockName: form.stockName.value,
-      ticker: form.ticker.value,
-      buyPrice: parseFloat(form.buyPrice.value),
-      quantity: parseInt(form.quantity.value)
-    };
-
-    const response = await fetch(action, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-
-    if (response.ok) {
-      location.reload();
-    } else {
-      alert("更新失败，请重试");
-    }
-  });
-
+  // 删除持仓
   async function handleDelete(id) {
-    if (!confirm("确定要删除这只股票吗？")) return;
+    if (!confirm('确认要删除此持仓吗？')) return;
+    const res = await fetch(`/stocks/delete/${id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (res.ok) location.reload();
+    else alert('删除失败，请稍后重试');
+  }
 
-    const response = await fetch(`/stocks/delete/${id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" }
+  // 添加新股票
+  document.getElementById("addForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const form = e.target;
+    const payload = {
+      stockName: form.stockName.value,
+      ticker:    form.ticker.value,
+      buyPrice:  parseFloat(form.buyPrice.value),
+      quantity:  parseInt(form.quantity.value, 10)
+    };
+    const res = await fetch('/stocks/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) location.reload();
+    else alert('添加失败，请稍后重试');
+  });
+
+  // 显示详情：拉取最近7天收盘价并绘制图表
+  async function showDetails(id) {
+    const res  = await fetch(`/stocks/details/${id}`);
+    if (!res.ok) return alert('获取详情失败');
+    const data = await res.json();
+
+    // 填充标题
+    document.getElementById("detailModalTitle")
+      .textContent = `${data.stockName} (${data.ticker}) 详情`;
+
+    // 绘制折线图
+    const ctx = document.getElementById('detailChart').getContext('2d');
+    if (detailChart) detailChart.destroy();
+    detailChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.history.map(d => d.date),
+        datasets: [{
+          label: '收盘价',
+          data:  data.history.map(d => d.close),
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1
+        }]
+      },
+      options: {
+        scales: {
+          x: { title: { display: true, text: '日期' } },
+          y: { title: { display: true, text: '价格 (元)' } }
+        }
+      }
     });
 
-    if (response.ok) {
-      location.reload();
-    } else {
-      alert("删除失败，请重试");
-    }
+    // 填充其他信息
+    document.getElementById('detailInfo').innerHTML = `
+      <p>当前价格：${data.currentPrice}</p>
+      <p>买入价格：${data.buyPrice}</p>
+      <p>持仓数量：${data.quantity}</p>
+      <p>成本总额：${(data.buyPrice * data.quantity).toFixed(2)}</p>
+      <p>浮动盈亏：${((data.currentPrice - data.buyPrice) * data.quantity).toFixed(2)}</p>
+    `;
+
+    // 显示模态框
+    new bootstrap.Modal(document.getElementById('detailModal')).show();
   }
 </script>
