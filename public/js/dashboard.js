@@ -57,7 +57,46 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
+  // // 初始化或更新饼图的函数
+  // function initOrUpdatePieChart(cash, investments) {
+  //   const pieCtx = document.getElementById('pieChart');
+  //   if (pieCtx && (window.pieLabels || [cash, investments])) {
+  //     // 如果已有实例，先销毁
+  //     if (pieChartInstance) {
+  //       pieChartInstance.destroy();
+  //     }
+      
+  //     // 创建新实例
+  //     pieChartInstance = new Chart(pieCtx, {
+  //       type: 'pie',
+  //       data: {
+  //         labels: window.pieLabels,
+  //         datasets: [{
+  //           data: [cash, investments],
+  //           backgroundColor: [cash, investments].map((_, i) => {
+  //             const colors = [
+  //               'rgba(255, 99, 132, 0.7)',
+  //               'rgba(54, 162, 235, 0.7)',
+  //               'rgba(255, 206, 86, 0.7)',
+  //               'rgba(75, 192, 192, 0.7)',
+  //               'rgba(153, 102, 255, 0.7)'
+  //             ];
+  //             return colors[i % colors.length];
+  //           }),
+  //           borderWidth: 1
+  //         }]
+  //       },
+  //       options: {
+  //         responsive: true,
+  //         plugins: {
+  //           legend: {
+  //             position: 'right'
+  //           }
+  //         }
+  //       }
+  //     });
+  //   }
+  // }
   // 初始化饼图
   const pieCtx = document.getElementById('pieChart');
   if (pieCtx && (window.pieLabels || window.pieValues)) {
