@@ -70,6 +70,16 @@
         </div>
       </div>
       
+      <!-- 投资比例柱状图模块 -->
+      <div class="card mb-4 flex-grow-1">
+        <div class="card-header">
+          <h5>投资比例（现金 vs 证券）</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="barChart" width="300" height="200"></canvas>
+        </div>
+      </div>
+      
      
     </div>
 
@@ -90,13 +100,16 @@
 
 <script>
   // 图表数据通过HTML元素属性传递
-  window.chartLabels = <%- JSON.stringify(lineData.labels || []) %>;
-  window.chartValues = <%- JSON.stringify(lineData.values || []) %>;
-
-  window.pieLabels = <%- JSON.stringify(pieData.labels || []) %>;
-  window.pieValues = <%- JSON.stringify(pieData.values || []) %>;
+  window.chartLabels = (<%- JSON.stringify(lineData.labels || []) %>);
+  window.chartValues = (<%- JSON.stringify(lineData.values || []) %>);
+  window.pieLabels = (<%- JSON.stringify(pieData.labels || []) %>);
+  window.pieValues = (<%- JSON.stringify(pieData.values || []) %>);
+  // 新增：柱状图数据
+  window.barLabels = (<%- JSON.stringify(barData.labels || []) %>);
+  window.barCash = (<%- JSON.stringify(barData.cash || []) %>);
+  window.barInvestments = (<%- JSON.stringify(barData.investments || []) %>);
   // 图表数据已通过HTML5 data属性传递
 </script>
-
 </div> <!-- 关闭sidebar.ejs中的.container-fluid -->
 <%- include('partials/footer') %>
+
