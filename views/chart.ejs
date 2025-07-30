@@ -32,14 +32,11 @@
           <div id="userInfo">
             <p><strong>用户名:</strong> <%= user?.name || '未登录' %></p>
             <p><strong>账户类型:</strong> <%= user?.accountType || '普通账户' %></p>
-            <p>
+            <p class="mb-0">
               <strong>可用现金流:</strong> 
               $<span id="cash-value"><%= (user?.cash || 0).toLocaleString() %></span>
-              <button id="cash-increase" class="btn btn-md btn-danger d-inline-flex align-items-center justify-content-center p-0 me-2" style="width:2.2rem;height:2.2rem;border-radius:0.5rem;">
-                <i class="bi-plus" style="font-size:1.5rem;font-weight:bold;"></i>
-              </button>
-              <button id="cash-decrease" class="btn btn-md btn-success d-inline-flex align-items-center justify-content-center p-0" style="width:2.2rem;height:2.2rem;border-radius:0.5rem;">
-                <i class="bi-dash" style="font-size:1.5rem;font-weight:bold;"></i>
+              <button id="change-cash" class="btn btn-success ms-2">
+                Change
               </button>
             </p>
             <p>
@@ -56,7 +53,7 @@
           </div>
         </div>
       </div>
-      
+    
       <!-- 饼图容器 -->
       <div class="card mb-4 flex-grow-1">
         <div class="card-header">
@@ -64,9 +61,9 @@
         </div>
         <div class="card-body">
           <canvas id="pieChart" width="300" height="200" 
-            data-cash="<%= user?.cash || 60 %>"
-            data-investments="<%= user?.investments || 40 %>">
-          </canvas>
+             data-cash="<%= (user?.cash || 60).toFixed(2) %>"
+             data-investments="<%= (user?.investments || 40).toFixed(2) %>"
+          ></canvas>
         </div>
       </div>
       
@@ -97,19 +94,112 @@
     </div>
   </div>
 </main>
+<!-- 现金流修改弹窗 (使用与参考弹窗一致的样式class) -->
+<div class="modal fade" id="cashModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-light">
+        <h5 class="modal-title">修改可用现金流</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-3">
+        <div class="mb-3">
+          <label for="newCashInput" class="form-label">现金流金额</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" step="0.01" min="0" id="newCashInput" class="form-control" required>
+          </div>
+          <div id="errorMessage" class="text-danger small mt-2 d-none"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="confirmBtn" class="btn btn-success">保存</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script>
+  
   // 图表数据通过HTML元素属性传递
   window.chartLabels = (<%- JSON.stringify(lineData.labels || []) %>);
   window.chartValues = (<%- JSON.stringify(lineData.values || []) %>);
   window.pieLabels = (<%- JSON.stringify(pieData.labels || []) %>);
-  window.pieValues = (<%- JSON.stringify(pieData.values || []) %>);
-  // 新增：柱状图数据
+  window.pieValues = [200,400];
   window.barLabels = (<%- JSON.stringify(barData.labels || []) %>);
   window.barCash = (<%- JSON.stringify(barData.cash || []) %>);
   window.barInvestments = (<%- JSON.stringify(barData.investments || []) %>);
-  // 图表数据已通过HTML5 data属性传递
 </script>
-</div> <!-- 关闭sidebar.ejs中的.container-fluid -->
-<%- include('partials/footer') %>
+<script>
+// 等待DOM完全加载
+document.addEventListener('DOMContentLoaded', function() {
+  // 初始化Bootstrap模态框
+  const cashModal = new bootstrap.Modal(document.getElementById('cashModal'));
+  
+  // 获取DOM元素
+  const changeCashBtn = document.getElementById('change-cash');
+  const cashValue = document.getElementById('cash-value');
+  const investmentsValue = document.getElementById('investments-value');
+  const totalValue = document.getElementById('total-value');
+  const newCashInput = document.getElementById('newCashInput');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const errorMessage = document.getElementById('errorMessage');
+  const closeButtons = document.querySelectorAll('[data-bs-dismiss="modal"]');
 
+  // 打开弹窗
+  changeCashBtn.addEventListener('click', () => {
+    // 获取当前现金值并移除千位分隔符
+    const currentValue = parseFloat(cashValue.textContent.replace(/,/g, ''));
+    newCashInput.value = currentValue;
+    // 清除错误状态
+    errorMessage.classList.add('d-none');
+    newCashInput.classList.remove('is-invalid');
+    // 显示模态框
+    cashModal.show();
+  });
+
+  // 确认修改
+  confirmBtn.addEventListener('click', () => {
+    const newValue = parseFloat(newCashInput.value);
+    
+    // 验证输入
+    if (isNaN(newValue) || newValue < 0) {
+      errorMessage.textContent = '请输入有效的非负数值';
+      errorMessage.classList.remove('d-none');
+      newCashInput.classList.add('is-invalid');
+      return;
+    }
+    
+    // 更新显示值
+    newCashInput.classList.remove('is-invalid');
+    cashValue.textContent = newValue.toLocaleString();
+    totalValue.textContent = (newValue + parseFloat(investmentsValue.textContent.replace(/,/g, ''))).toLocaleString();
+    
+    
+    // 这里可以添加更新后端数据的代码
+    // 示例: fetch('/api/update-cash', { method: 'POST', body: JSON.stringify({ cash: newValue }) })
+    
+    // 关闭弹窗
+    cashModal.hide();
+  });
+
+  // 输入时清除错误状态
+  newCashInput.addEventListener('input', () => {
+    errorMessage.classList.add('d-none');
+    newCashInput.classList.remove('is-invalid');
+  });
+
+  // 关闭按钮清除错误状态
+  closeButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      errorMessage.classList.add('d-none');
+      newCashInput.classList.remove('is-invalid');
+    });
+  });
+});
+</script>
+
+</div> 
+<%- include('partials/footer') %>
