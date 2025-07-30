@@ -127,7 +127,7 @@
   window.chartLabels = (<%- JSON.stringify(lineData.labels || []) %>);
   window.chartValues = (<%- JSON.stringify(lineData.values || []) %>);
   window.pieLabels = (<%- JSON.stringify(pieData.labels || []) %>);
-  window.pieValues = [200,400];
+  window.pieValues = (<%- JSON.stringify(pieData.values || []) %>);
   window.barLabels = (<%- JSON.stringify(barData.labels || []) %>);
   window.barCash = (<%- JSON.stringify(barData.cash || []) %>);
   window.barInvestments = (<%- JSON.stringify(barData.investments || []) %>);
