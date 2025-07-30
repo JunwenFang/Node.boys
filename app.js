@@ -53,8 +53,12 @@ const userData = {
   investments: 5000
 };
 
+app.get('/', (req, res) => {
+  res.render('login');
+});
+
 // 路由：曲线图页面
-app.get('/', async (req, res) => {
+app.get('/chart', async (req, res) => {
   await fetchMainChartData();
   res.render('chart', {
     dateRange: '本周',
