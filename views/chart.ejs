@@ -48,7 +48,7 @@
             <p>
               <strong>总资产价值:</strong> 
               $<span id="total-value">
-                <%= ((user?.cash || 0) + (user?.investments || 0)).toLocaleString() %>
+                <%= (user?.balance || 0).toLocaleString() + '.00' %>
               </span>
             </p>
           </div>
