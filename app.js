@@ -193,9 +193,45 @@ app.get('/stocks/details/:id', async (req, res) => {
       });
     }
   );
-  // 查表/调用第三方 API 获取最近7天收盘价 history
-  // 返回 JSON: { id, stockName, ticker, buyPrice, quantity, currentPrice, history: [{date,close},…] }
-  return {}
+});
+
+app.post('/stocks/increase/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  const quantity = parseInt(req.body.amount, 10);
+  pool.query(
+    'UPDATE position SET quantity = quantity + ? WHERE position_id = ?',
+    [quantity, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '增加持仓失败' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      res.json({ success: true });
+    }
+  );
+});
+
+app.post('/stocks/decrease/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  // const { quantity } = req.body;
+  const quantity = parseInt(req.body.amount, 10);
+  pool.query(
+    'UPDATE position SET quantity = quantity - ? WHERE position_id = ?',
+    [quantity, id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '减少持仓失败' });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: '持仓未找到' });
+      }
+      res.json({ success: true });
+    }
+  );
 });
 
 
