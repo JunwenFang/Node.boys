@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
       data: {
         labels: window.chartLabels,
         datasets: [{
-          label: '收益率',
+          label: '盈亏金额',
           data: window.chartValues,
           fill: false,
-          borderColor: 'rgba(54, 162, 235, 1)',
+          borderColor: 'rgba(255, 102, 0, 1)',         
           tension: 0.1,
-          pointBackgroundColor: 'rgba(255, 102, 0, 1)', // 鼠标悬停时的点也设置为橙色
+          pointBackgroundColor: 'rgba(255, 102, 0, 1)' 
         }]
       },
       options: {
@@ -69,11 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
           data: window.pieValues,
           backgroundColor: (window.pieValues ).map((_, i) => {
             const colors = [
-              'rgba(255, 99, 132, 0.7)',
-              'rgba(54, 162, 235, 0.7)',
-              'rgba(255, 206, 86, 0.7)',
-              'rgba(75, 192, 192, 0.7)',
-              'rgba(153, 102, 255, 0.7)'
+              // 'rgba(255, 99, 132, 0.7)',
+              // 'rgba(54, 162, 235, 0.7)',
+              // 'rgba(255, 206, 86, 0.7)',
+              // 'rgba(75, 192, 192, 0.7)',
+              // 'rgba(153, 102, 255, 0.7)'
+              'rgba(25, 135, 84, 1)',     // 绿色
+              'rgba(239, 63, 63, 1)',   // 红色
+              'rgba(54, 162, 235, 0.7)',  // 蓝色（如图右下对比线）
+              'rgba(255, 204, 0, 0.7)',   // 黄色
+              'rgba(153, 102, 255, 0.7)'  // 可选
             ];
             return colors[i % colors.length];
           }),
@@ -102,11 +107,11 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [
           { label: '现金',
             data: window.barCash,
-            backgroundColor: 'rgba(0, 128, 0, 0.7)' 
+            backgroundColor: 'rgba(25, 135, 84, 1)' 
           },
           { label: '证券',
             data: window.barInvestments,
-            backgroundColor: 'rgba(255, 0, 0, 0.7)' 
+            backgroundColor: 'rgba(239, 63, 63, 1)' 
           }
         ]
       },
