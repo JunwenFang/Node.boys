@@ -31,6 +31,13 @@ const pieData = {
   values: [60,40]
 };
 
+// 新增：柱状图数据（按时间序列，cash和证券价值比例）
+const barData = {
+  labels: ['7-1', '7-2', '7-3', '7-4', '7-5', '7-6', '7-7'],
+  cash:   [60, 62, 58, 65, 63, 61, 59], // 百分比
+  investments: [40, 38, 42, 35, 37, 39, 41] // 百分比
+};
+
 const tableData = [
   { id: '1,001', col1: 'random', col2: 'data', col3: 'placeholder', col4: 'text' },
   { id: '1,002', col1: 'placeholder', col2: 'irrelevant', col3: 'visual', col4: 'layout' },
@@ -52,8 +59,8 @@ app.get('/', (req, res) => {
     dateRange: '本周',
     lineData: lineData, // 传递折线图数据到前端
     pieData: pieData, // 传递饼图数据到前端
-    user: userData // 传递用户数据到前端,
-    
+    user: userData, // 传递用户数据到前端,
+    barData: barData // 新增：传递柱状图数据
   });
 });
 
