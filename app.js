@@ -27,10 +27,10 @@ const lineData = {
   values: [0, 10, 15, 12, 18, 28, 40]
 };
 
-const pieData = {
-  labels: ['Cash', 'Investment'],
-  values: [60, 40]
-};
+// const pieData = {
+//   labels: ['Cash', 'Investment'],
+//   values: [60, 40]
+// };
 
 // 新增：柱状图数据（按时间序列，cash和证券价值比例）
 const barData = {
@@ -81,8 +81,7 @@ async function fetchUserData(userId) {
     [userId]
   );
   const investments = invRows[0].total_investment;
-
-  return {
+  const userdata = {
     name:        username,
     accountType: "VIP账户",
     balance:    parseFloat(cash)+parseFloat(investments), // 账户总余额 = 可用现金 + 证券价值
@@ -90,7 +89,31 @@ async function fetchUserData(userId) {
     cash,
     investments
   };
+  const pieData = {
+    labels: ['现金', '证券'],
+    values: [cash, investments]
+  }
+  return [userdata, pieData];
 }
+
+
+// 更改金额
+app.post('/api/update-cash', (req, res) => {
+  const { userId, cash_value } = req.body;
+  
+
+  pool.query(
+    'UPDATE `cash` SET `cash_quantity` = ? WHERE `user_id` = ?',
+    [cash_value, userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '更新金钱失败' });
+      }
+      res.json({ success: true, id: result.insertId });
+    }
+  );
+});
 
 
 app.get('/', (req, res) => {
@@ -102,7 +125,8 @@ app.get('/chart', async (req, res) => {
   const userId = 1;
   await fetchMainChartData();
   // 获取用户数据
-  const user = await fetchUserData(userId);
+  const [user, pieData] = await fetchUserData(userId);
+
   console.log('用户数据:', user);
   res.render('chart', {
     dateRange: '本周',
@@ -199,6 +223,8 @@ async function fetchMainChartData() {
       }))
     })
   });
+
+
 
 // 添加持仓
 app.post('/stocks/add', (req, res) => {
