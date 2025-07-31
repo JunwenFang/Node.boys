@@ -146,6 +146,7 @@ app.get('/login', (req, res) => {
 // 路由：表格页面
 // 股票数据存储
 let positions = []
+
 async function fetchPositions() {
   
     pool.query('SELECT position_id, stock_name, stock_code, cost, quantity FROM position',async (err, results) => {
@@ -244,24 +245,24 @@ app.post('/stocks/add', (req, res) => {
 });
 
 // 更新持仓
-app.post('/stocks/update/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const { stockName, ticker, buyPrice, quantity } = req.body;
-  pool.query(
-    'UPDATE position SET stock_name = ?, stock_code = ?, cost = ?, quantity = ? WHERE position_id = ?',
-    [stockName, ticker, buyPrice, quantity, id],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: '更新持仓失败' });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: '持仓未找到' });
-      }
-      res.json({ success: true });
-    }
-  );
-});
+// app.post('/stocks/update/:id', (req, res) => {
+//   const id = parseInt(req.params.id);
+//   const { stockName, ticker, buyPrice, quantity } = req.body;
+//   pool.query(
+//     'UPDATE position SET stock_name = ?, stock_code = ?, cost = ?, quantity = ? WHERE position_id = ?',
+//     [stockName, ticker, buyPrice, quantity, id],
+//     (err, result) => {
+//       if (err) {
+//         console.error(err);
+//         return res.status(500).json({ error: '更新持仓失败' });
+//       }
+//       if (result.affectedRows === 0) {
+//         return res.status(404).json({ error: '持仓未找到' });
+//       }
+//       res.json({ success: true });
+//     }
+//   );
+// });
 
 // 删除持仓
 app.post('/stocks/delete/:id', (req, res) => {
@@ -306,45 +307,54 @@ app.get('/stocks/details/:id', async (req, res) => {
   });
 });
 
-app.post('/stocks/increase/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const quantity = parseInt(req.body.amount, 10);
-  pool.query(
-    'UPDATE position SET quantity = quantity + ? WHERE position_id = ?',
-    [quantity, id],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: '增加持仓失败' });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: '持仓未找到' });
-      }
-      res.json({ success: true });
-    }
-  );
+// 增加持仓并减钱
+app.post('/stocks/increase/:id', async (req, res) => {
+  try {
+    await fetchPositions();
+    const id = +req.params.id;
+    const amt = +req.body.amount;
+    const pos = positions.find(p => p.position_id === id);
+    
+    if (!pos) return res.status(404).json({ error: '持仓未找到' });
+
+    const cost = pos.currentPrice * amt;
+    await promisePool.query(
+      'UPDATE position SET quantity = quantity + ?,cost = cost + ? WHERE position_id = ?', [amt, cost,id]
+    );
+    await promisePool.query(
+      'UPDATE cash SET cash_quantity = cash_quantity - ? WHERE user_id = ?', [cost, 1]
+    );
+    // return res.json({ success: true });
+    return res.redirect('/table');
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: '服务器错误' });
+  }
 });
 
-app.post('/stocks/decrease/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  // const { quantity } = req.body;
-  const quantity = parseInt(req.body.amount, 10);
-  pool.query(
-    'UPDATE position SET quantity = quantity - ? WHERE position_id = ?',
-    [quantity, id],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: '减少持仓失败' });
-      }
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: '持仓未找到' });
-      }
-      res.json({ success: true });
-    }
-  );
-});
+// 减少持仓并加钱
+app.post('/stocks/decrease/:id', async (req, res) => {
+  try {
+    await fetchPositions();
+    const id = +req.params.id;
+    const amt = +req.body.amount;
+    const pos = positions.find(p => p.position_id === id);
+    if (!pos) return res.status(404).json({ error: '持仓未找到' });
 
+    const gain = pos.currentPrice * amt;
+    await promisePool.query(
+      'UPDATE position SET quantity = quantity - ?, cost = cost - ?  WHERE position_id = ?', [amt, gain, id]
+    );
+    await promisePool.query(
+      'UPDATE cash SET cash_quantity = cash_quantity + ? WHERE user_id = ?', [gain, 1]
+    );
+    // return res.json({ success: true });
+    return res.redirect('/table');
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: '服务器错误' });
+  }
+});
 
 
   app.post('/login', (req, res) => {
