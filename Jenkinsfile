@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // 拉取代码
-                checkout main
+                bat 'git checkout main'
             }
         }
         stage('Install Dependencies') {
