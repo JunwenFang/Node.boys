@@ -388,4 +388,4 @@ app.post('/stocks/decrease/:id', async (req, res) => {
     console.log('服务器运行在 http://localhost:3000');
   });
 
-  moudule.exports = app; // 导出app以便测试或其他用途
+  module.exports = app; // 导出app以便测试或其他用途
