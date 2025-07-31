@@ -99,18 +99,27 @@ async function fetchUserData(userId) {
 
 // 更改金额
 app.post('/api/update-cash', (req, res) => {
-  const { userId, cash_value } = req.body;
-  
+  const { user_id, cash } = req.body;
+
 
   pool.query(
-    'UPDATE `cash` SET `cash_quantity` = ? WHERE `user_id` = ?',
-    [cash_value, userId],
+    'UPDATE cash SET cash_quantity = ? WHERE user_id = ?',
+    [cash, user_id],
     (err, result) => {
       if (err) {
-        console.error(err);
+        console.error('SQL错误:', err);
         return res.status(500).json({ error: '更新金钱失败' });
       }
-      res.json({ success: true, id: result.insertId });
+
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ 
+          error: '未找到匹配的记录', 
+          user_id, 
+          cash 
+        });
+      }
+      res.json({ success: true, id: user_id, cash: cash });
     }
   );
 });
