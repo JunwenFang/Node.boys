@@ -174,7 +174,7 @@
     const payload = {
       stockName: form.stockName.value,
       ticker:    form.ticker.value,
-      buyPrice:  parseFloat(form.buyPrice.value),
+      buyPrice:  parseFloat(form.buyPrice.value * form.quantity.value),
       quantity:  parseInt(form.quantity.value, 10)
     };
     const res = await fetch('/stocks/add', {
