@@ -112,9 +112,9 @@
             </ul>
             <div class="d-flex justify-content-end gap-2">
               <button class="btn btn-sm btn-outline-success"
-                      onclick="event.stopPropagation(); openQuantityModal('increase', '<%- itemStr %>')">增加</button>
+                      onclick="event.stopPropagation(); openQuantityModal('increase', '<%= itemStr %>')">增加</button>
               <button class="btn btn-sm btn-outline-warning"
-                      onclick="event.stopPropagation(); openQuantityModal('decrease', '<%- itemStr %>')">减少</button>
+                      onclick="event.stopPropagation(); openQuantityModal('decrease', '<%= itemStr %>')">减少</button>
               <button class="btn btn-sm btn-outline-danger"
                       onclick="event.stopPropagation(); handleDelete('<%= item.id %>')">删除</button>
             </div>
