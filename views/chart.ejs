@@ -78,7 +78,7 @@
               <h5>盈亏趋势</h5>
             </div>
             <div class="card-body">
-              <canvas id="myChart" width="400" height="200"></canvas>
+              <canvas id="myChart" width="400" height="150"></canvas>
             </div>
           </div>
 
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // 确认修改
-  confirmBtn.addEventListener('click', () => {
+  confirmBtn.addEventListener('click', async () => {
     const newValue = parseFloat(newCashInput.value);
     
     // 验证输入
@@ -179,11 +179,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
     // 这里可以添加更新后端数据的代码
-    const res = fetch('/api/update-cash', { 
+    const res = await fetch('/api/update-cash', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: 1 ,cash: newValue }) })
-    if (res.success) {
+      body: JSON.stringify({ user_id: 1 ,cash: newValue }) 
+    });
+    if (res.ok) {
       location.reload(); // 刷新页面以获取最新数据
     } else {
       alert('更新失败，请稍后重试');}
