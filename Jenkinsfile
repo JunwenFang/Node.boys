@@ -22,8 +22,13 @@ pipeline {
         stage('Start') {
             steps {
                 // 启动应用
-                bat 'npm start'
+                powershell 'Start-Process npm -ArgumentList "start" -PassThru | Set-Content server.pid'
             }
+        }
+        stage('Stop Server') {
+            steps {
+                powershell '$pid = Get-Content server.pid | Select-Object -ExpandProperty Id; Stop-Process -Id $pid'
+                }
         }
     }
 }
