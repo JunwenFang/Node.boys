@@ -16,8 +16,8 @@ pipeline {
         }
         stage('Test') {
             steps {
-                // 如果有测试脚本可以加上，没有可以跳过
-                // sh 'npm test'
+                如果有测试脚本可以加上，没有可以跳过
+                bat 'echo test'
             }
         }
         stage('Start') {

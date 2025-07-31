@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "test": "jest"
+    "test": "jest jest.js"
   },
   "author": "hugo",
   "license": "ISC",
@@ -13,5 +13,9 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "mysql2": "^3.14.2"
+  },
+  "devDependencies": {
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4"
   }
 }
