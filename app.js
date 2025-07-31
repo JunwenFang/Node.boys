@@ -74,16 +74,25 @@ app.get('/login', (req, res) => {
 // 股票数据存储
 let positions = []
 async function fetchPositions() {
-  return new Promise((resolve, reject) => {
-    pool.query('SELECT position_id, stock_name, stock_code, cost, quantity FROM position', (err, results) => {
+  
+    pool.query('SELECT position_id, stock_name, stock_code, cost, quantity FROM position',async (err, results) => {
       if (err) {
         console.error(err);
-        reject(err);
+        
       }
       positions = results;
-      resolve(results);
+      //获取所有持仓的现价
+      const recentDates = await stockApi.fetchRecentTradeDay(1);
+      let stock_codes = positions.map(row => row.stock_code).join(',');
+      const data = await stockApi.fetchStockData(stock_codes, recentDates[0], recentDates[0]);
+      for (let i = 0; i < positions.length; i++) {
+        
+          positions[i].currentPrice = data[i][2]; 
+
+      }
+
+
     });
-  });
 };
 
 async function fetchMainChartData() {
@@ -137,7 +146,7 @@ async function fetchMainChartData() {
         ticker: row.stock_code,
         TbuyPrice: row.cost,
         quantity: row.quantity,
-        currentPrice: 0
+        currentPrice: row.currentPrice
       }))
     })
   });
@@ -200,39 +209,26 @@ app.post('/stocks/delete/:id', (req, res) => {
 
 app.get('/stocks/details/:id', async (req, res) => {
   const id = parseInt(req.params.id);
-  pool.query(
-    'SELECT position_id, stock_name, stock_code, cost, quantity FROM position WHERE position_id = ?',
-    [id],
-    (err, results) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: '获取持仓详情失败' });
-      }
-      if (results.length === 0) {
-        return res.status(404).json({ error: '持仓未找到' });
-      }
-      const position = results[0];
-      // 模拟获取最近7天收盘价
-      const history = [
-        { date: '2023-10-01', close: 100 },
-        { date: '2023-10-02', close: 102 },
-        { date: '2023-10-03', close: 101 },
-        { date: '2023-10-04', close: 103 },
-        { date: '2023-10-05', close: 104 },
-        { date: '2023-10-06', close: 105 },
-        { date: '2023-10-07', close: 106 }
-      ];
-      res.json({
-        id: position.position_id,
-        stockName: position.stock_name,
-        ticker: position.stock_code,
-        buyPrice: position.cost/position.quantity, // 平均买入价
-        quantity: position.quantity,
-        currentPrice: 0, // 模拟当前价格
-        history
-      });
-    }
-  );
+  const position = positions.find(pos => pos.position_id === id);
+  if (!position) {
+    return res.status(404).json({ error: '持仓未找到' });
+  }
+  //获取过去七天股价变化
+  const recentDates = await stockApi.fetchRecentTradeDay(7);
+  let start_date = recentDates[0];
+  let end_date = recentDates[6];
+
+  const history = await stockApi.fetchStockData(position.stock_code, start_date, end_date);
+  const currentPrice = history[history.length - 1][2]; // 获取最近一天的收盘价
+  res.json({
+    id: position.position_id,
+    stockName: position.stock_name,
+    ticker: position.stock_code,
+    buyPrice: position.cost / position.quantity, // 平均买入价
+    quantity: position.quantity,
+    currentPrice: currentPrice, // 模拟当前价格
+    history : history.reverse()
+  });
 });
 
 app.post('/stocks/increase/:id', (req, res) => {
