@@ -32,46 +32,96 @@
 
   <!-- 当前持仓表格 -->
   <h2>数据列表</h2>
-  <div class="table-responsive">
-    <table class="table table-hover table-bordered align-middle">
-      <thead class="table-secondary">
-        <tr>
-          <th>ID</th>
-          <th>名称</th>
-          <th>代码</th>
-          <th>买入价格</th>
-          <th>数量</th>
-          <th>当前价格</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% tableData.forEach(item => { %>
-        <tr style="cursor:pointer;" onclick="showDetails(<%= item.id %>)">
-          <td><%= item.id %></td>
-          <td><%= item.stockName %></td>
-          <td><%= item.ticker %></td>
-          <td><%= (item.TbuyPrice / item.quantity).toFixed(2) %></td>
-          <td><%= item.quantity %></td>
-          <td><%= item.currentPrice %></td>
-          <td>
-            <button class="btn btn-sm btn-outline-success me-1"
-                    onclick='event.stopPropagation(); openQuantityModal("increase", <%- JSON.stringify(item) %>)'>
-              增加
-            </button>
-            <button class="btn btn-sm btn-outline-warning me-1"
-                    onclick='event.stopPropagation(); openQuantityModal("decrease", <%- JSON.stringify(item) %>)'>
-              减少
-            </button>
-            <button class="btn btn-sm btn-outline-danger"
-                    onclick='event.stopPropagation(); handleDelete(<%= item.id %>)'>
-              删除
-            </button>
-          </td>
-        </tr>
-        <% }) %>
-      </tbody>
-    </table>
+  <style>
+    .stock-card {
+      background: linear-gradient(135deg, #23272f 60%, #181c22 100%);
+      border-radius: 1.2rem;
+      box-shadow: 0 4px 24px 0 rgba(20,20,30,0.18);
+      border: none;
+      transition: transform 0.18s, box-shadow 0.18s;
+      color: #f3f4f6;
+    }
+    .stock-card:hover {
+      transform: translateY(-6px) scale(1.03);
+      box-shadow: 0 8px 32px 0 rgba(20,20,30,0.32);
+      background: linear-gradient(135deg, #23272f 40%, #232b36 100%);
+    }
+    .stock-card .card-title {
+      color: #fff;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .stock-card .badge {
+      background: #4f8cff;
+      color: #fff;
+      font-size: 0.85em;
+      font-weight: 500;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 4px 0 rgba(79,140,255,0.12);
+    }
+    .stock-card .list-group-item {
+      background: transparent;
+      border: none;
+      color: #d1d5db;
+      font-size: 1em;
+    }
+    .stock-card strong {
+      color: #fff;
+    }
+    .stock-card .btn-outline-success {
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+    .stock-card .btn-outline-success:hover {
+      background: #22c55e;
+      color: #fff;
+    }
+    .stock-card .btn-outline-warning {
+      border-color: #f59e42;
+      color: #f59e42;
+    }
+    .stock-card .btn-outline-warning:hover {
+      background: #f59e42;
+      color: #fff;
+    }
+    .stock-card .btn-outline-danger {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+    .stock-card .btn-outline-danger:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+  </style>
+  <div class="row g-4">
+    <% tableData.forEach(item => { 
+         var itemStr = JSON.stringify(item).replace(/'/g, "\\'");
+    %>
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 stock-card" style="cursor:pointer;" onclick="showDetails('<%= item.id %>')">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="card-title mb-0"><%= item.stockName %></h5>
+              <span class="badge bg-secondary">ID: <%= item.id %></span>
+            </div>
+            <h6 class="card-subtitle mb-2 text-muted">代码：<%= item.ticker %></h6>
+            <ul class="list-group list-group-flush mb-3">
+              <li class="list-group-item">买入价格：<strong><%= (item.TbuyPrice / item.quantity).toFixed(2) %></strong></li>
+              <li class="list-group-item">数量：<strong><%= item.quantity %></strong></li>
+              <li class="list-group-item">当前价格：<strong><%= item.currentPrice %></strong></li>
+            </ul>
+            <div class="d-flex justify-content-end gap-2">
+              <button class="btn btn-sm btn-outline-success"
+                      onclick="event.stopPropagation(); openQuantityModal('increase', '<%- itemStr %>')">增加</button>
+              <button class="btn btn-sm btn-outline-warning"
+                      onclick="event.stopPropagation(); openQuantityModal('decrease', '<%- itemStr %>')">减少</button>
+              <button class="btn btn-sm btn-outline-danger"
+                      onclick="event.stopPropagation(); handleDelete('<%= item.id %>')">删除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% }) %>
   </div>
 </main>
 

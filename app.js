@@ -164,16 +164,19 @@ async function fetchPositions() {
         
       }
       positions = results;
-      //获取所有持仓的现价
+      // 获取所有持仓的现价
       const recentDates = await stockApi.fetchRecentTradeDay(1);
       let stock_codes = positions.map(row => row.stock_code).join(',');
       const data = await stockApi.fetchStockData(stock_codes, recentDates[0], recentDates[0]);
-      for (let i = 0; i < positions.length; i++) {
-        
-          positions[i].currentPrice = data[i][2]; 
-
+      // 构建以stock_code为key的Map
+      const priceMap = new Map();
+      for (const item of data) {
+        // item: [stock_code, date, price]
+        priceMap.set(item[0], item[2]);
       }
-
+      for (let i = 0; i < positions.length; i++) {
+        positions[i].currentPrice = priceMap.get(positions[i].stock_code) || null;
+      }
 
     });
 };
@@ -248,18 +251,7 @@ app.post('/stocks/add', (req, res) => {
         console.error(err);
         return res.status(500).json({ error: '添加持仓失败' });
       }
-      pool.query(
-        'UPDATE `cash` SET cash_quantity = cash_quantity - ? WHERE user_id = ?',
-        [buyPrice, 1],
-        (err2, result2) => {
-          if (err2) {
-            console.error(err2);
-            return res.status(500).json({ error: '更新现金失败' });
-          }
-
-          res.json({ success: true, id: result.insertId });
-        }
-      );
+      res.json({ success: true, id: result.insertId });
     }
   );
 });
