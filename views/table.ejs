@@ -104,7 +104,7 @@
 <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header bg-dark text-white">
         <h5 class="modal-title" id="detailModalTitle">股票详情</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -147,6 +147,7 @@
     e.preventDefault();
     const id     = document.getElementById("quantity-id").value;
     const amount = parseInt(document.getElementById("quantity-amount").value, 10);
+    
     const res = await fetch(`/stocks/${quantityAction}/${id}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

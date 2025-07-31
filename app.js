@@ -238,7 +238,18 @@ app.post('/stocks/add', (req, res) => {
         console.error(err);
         return res.status(500).json({ error: '添加持仓失败' });
       }
-      res.json({ success: true, id: result.insertId });
+      pool.query(
+        'UPDATE `cash` SET cash_quantity = cash_quantity - ? WHERE user_id = ?',
+        [buyPrice, 1],
+        (err2, result2) => {
+          if (err2) {
+            console.error(err2);
+            return res.status(500).json({ error: '更新现金失败' });
+          }
+
+          res.json({ success: true, id: result.insertId });
+        }
+      );
     }
   );
 });
