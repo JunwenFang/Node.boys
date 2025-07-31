@@ -10,9 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
           label: '盈亏金额',
           data: window.chartValues,
           fill: false,
-          borderColor: 'rgba(255, 102, 0, 1)',         
+          borderColor: 'rgba(37, 198, 133, 0.85)',   // 柔和绿
           tension: 0.1,
-          pointBackgroundColor: 'rgba(255, 102, 0, 1)' 
+          pointBackgroundColor: 'rgba(255, 215, 0, 1)',  // 金色
         }]
       },
       options: {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             grid: {
               display: true,
-              color: 'rgba(0, 0, 0, 0.1)',
+              color: 'rgba(35, 39, 43, 0.5)',            // 深灰半透明网格线
               drawBorder: true,
               drawOnChartArea: true,
               drawTicks: true
@@ -69,16 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
           data: window.pieValues,
           backgroundColor: (window.pieValues ).map((_, i) => {
             const colors = [
-              // 'rgba(255, 99, 132, 0.7)',
-              // 'rgba(54, 162, 235, 0.7)',
-              // 'rgba(255, 206, 86, 0.7)',
-              // 'rgba(75, 192, 192, 0.7)',
-              // 'rgba(153, 102, 255, 0.7)'
-              'rgba(25, 135, 84, 1)',     // 绿色
-              'rgba(239, 63, 63, 1)',   // 红色
-              'rgba(54, 162, 235, 0.7)',  // 蓝色（如图右下对比线）
-              'rgba(255, 204, 0, 0.7)',   // 黄色
-              'rgba(153, 102, 255, 0.7)'  // 可选
+              'rgba(138, 180, 248, 0.85)',   // 银蓝
+              'rgba(255, 215, 0, 0.85)',    // 金色
+              'rgba(176, 179, 184, 0.85)',  // 银灰
+              'rgba(37, 198, 133, 0.85)',   // 柔和绿
+              'rgba(231, 76, 60, 0.85)'     // 柔和红
             ];
             return colors[i % colors.length];
           }),
@@ -107,11 +102,11 @@ document.addEventListener('DOMContentLoaded', () => {
         datasets: [
           { label: '现金',
             data: window.barCash,
-            backgroundColor: 'rgba(25, 135, 84, 1)' 
+            backgroundColor: 'rgba(37, 198, 133, 0.85)',   // 柔和绿
           },
           { label: '证券',
             data: window.barInvestments,
-            backgroundColor: 'rgba(239, 63, 63, 1)' 
+            backgroundColor: 'rgba(231, 76, 60, 0.85)'     // 柔和红
           }
         ]
       },
@@ -130,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             grid: {
               display: true,
-              color: 'rgba(0, 0, 0, 0.1)',
+              color: 'rgba(35, 39, 43, 0.5)',            // 深灰半透明网格线
               drawBorder: true,
               drawOnChartArea: true,
               drawTicks: true

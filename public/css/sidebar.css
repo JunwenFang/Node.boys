@@ -1,7 +1,7 @@
 /* 导航项默认状态（未选中） */
 .nav-link {
-  color: #495057; /* 中深灰色文字，与bg-light背景协调 */
-  background-color: transparent; /* 透明背景，融入侧边栏 */
+  color: #FFD700 !important;
+  background-color: black;
   padding: 0.5rem 1rem;
   display: block;
   text-decoration: none;
@@ -12,19 +12,44 @@
 
 /* 默认状态悬停效果 */
 .nav-link:hover {
-  color: #212529; /* 深一点的灰色，增强反馈 */
-  background-color: #e9ecef; /* 比bg-light稍深的灰色，突出 hover 状态 */
+  color: #181818 !important;
+  background-color: #333;
 }
 
 /* 激活状态（选中时） */
 .nav-link.active {
-  color: #fff !important; /* 白色文字，确保可读性 */
-  background-color: #495057; /* 中深灰色背景，与bg-light形成温和对比 */
-  border-left: 3px solid #212529; /* 深灰色左侧边框，增加层次 */
+  color: #181818 !important;
+  background-color: #FFD700;
+  border-left: 3px solid #FFD700;
 }
 
 /* 激活状态悬停效果 */
 .nav-link.active:hover {
-  background-color: #343a40; /* 稍深的灰色，保持过渡自然 */
-  color: #fff !important;
+  background-color: #FFD700;
+  color: #181818 !important;
+}
+
+.sidebar {
+  background: #181818 !important;
+}
+
+
+
+.sidebar a,
+.sidebar a:visited {
+  color: #FFD700 !important;
+}
+.sidebar a.active,
+.sidebar a.active:visited {
+  color: #181818 !important;
+}
+.sidebar a:hover,
+.sidebar a:focus {
+  color: #181818 !important;
+}
+
+.nav-link.active,
+.nav-link.active .feather,
+.nav-link.active .bi {
+  color: #181818 !important;
 }

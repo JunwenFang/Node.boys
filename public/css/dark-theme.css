@@ -1,0 +1,45 @@
+body, html {
+  background-color: #18191a !important;
+  color: #e4e6eb !important;
+}
+
+a, a:visited {
+  color: #8ab4f8;
+}
+
+.navbar, .sidebar, .card, .modal-content, .dropdown-menu {
+  background-color: #23272b !important;
+  color: #e4e6eb !important;
+  border-color: #343a40 !important;
+}
+
+.table, .table th, .table td {
+  background-color: #23272b !important;
+  color: #e4e6eb !important;
+}
+
+.btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger, .btn-warning, .btn-info, .btn-light, .btn-dark {
+  background-color: #343a40 !important;
+  color: #e4e6eb !important;
+  border: none;
+}
+
+input, textarea, select {
+  background-color: #23272b !important;
+  color: #e4e6eb !important;
+  border: 1px solid #343a40 !important;
+}
+
+::-webkit-input-placeholder { color: #b0b3b8; }
+::-moz-placeholder { color: #b0b3b8; }
+:-ms-input-placeholder { color: #b0b3b8; }
+::placeholder { color: #b0b3b8; }
+
+hr {
+  border-top: 1px solid #343a40;
+}
+
+footer, .footer {
+  background-color: #18191a !important;
+  color: #b0b3b8 !important;
+}
