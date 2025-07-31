@@ -97,6 +97,25 @@ async function fetchUserData(userId) {
 }
 
 
+// 更改金额
+app.post('/api/update-cash', (req, res) => {
+  const { userId, cash_value } = req.body;
+  
+
+  pool.query(
+    'UPDATE `cash` SET `cash_quantity` = ? WHERE `user_id` = ?',
+    [cash_value, userId],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: '更新金钱失败' });
+      }
+      res.json({ success: true, id: result.insertId });
+    }
+  );
+});
+
+
 app.get('/', (req, res) => {
   res.render('login');
 });
@@ -195,6 +214,8 @@ async function fetchMainChartData() {
       }))
     })
   });
+
+
 
 // 添加持仓
 app.post('/stocks/add', (req, res) => {

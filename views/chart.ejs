@@ -179,8 +179,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
     // 这里可以添加更新后端数据的代码
-    // 示例: fetch('/api/update-cash', { method: 'POST', body: JSON.stringify({ cash: newValue }) })
-    
+    const res = fetch('/api/update-cash', { 
+      method: 'POST', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: 1 ,cash: newValue }) })
+    if (res.success) {
+      location.reload(); // 刷新页面以获取最新数据
+    } else {
+      alert('更新失败，请稍后重试');}
+
     // 关闭弹窗
     cashModal.hide();
   });
