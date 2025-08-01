@@ -95,6 +95,7 @@
   </style>
   <div class="row g-4">
     <% tableData.forEach(item => { 
+         var item_id = item;
          var itemStr = JSON.stringify(item).replace(/'/g, "\\'");
     %>
       <div class="col-12 col-md-6 col-lg-4">
@@ -112,9 +113,9 @@
             </ul>
             <div class="d-flex justify-content-end gap-2">
               <button class="btn btn-sm btn-outline-success"
-                      onclick="event.stopPropagation(); openQuantityModal('increase', '<%= itemStr %>')">增加</button>
+                      onclick="event.stopPropagation(); openQuantityModal('increase', '<%= item.id %>')">增加</button>
               <button class="btn btn-sm btn-outline-warning"
-                      onclick="event.stopPropagation(); openQuantityModal('decrease', '<%= itemStr %>')">减少</button>
+                      onclick="event.stopPropagation(); openQuantityModal('decrease', '<%= item.id %>')">减少</button>
               <button class="btn btn-sm btn-outline-danger"
                       onclick="event.stopPropagation(); handleDelete('<%= item.id %>')">删除</button>
             </div>
@@ -179,9 +180,9 @@
   let detailChart = null;
 
   // 打开增加/减少数量模态框
-  function openQuantityModal(action, data) {
+  function openQuantityModal(action, id) {
     quantityAction = action;
-    document.getElementById("quantity-id").value = data.id;
+    document.getElementById("quantity-id").value = id;
     document.getElementById("quantity-amount").value = "";
     const title = action === "increase" ? "增加数量" : "减少数量";
     const label  = action === "increase"
