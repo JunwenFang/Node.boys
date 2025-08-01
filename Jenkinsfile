@@ -22,13 +22,9 @@ pipeline {
         stage('Start') {
             steps {
                 // 启动应用
-                powershell 'Start-Process npm -ArgumentList "start" -PassThru | Set-Content server.pid'
+                powershell '($p = Start-Process npm -ArgumentList "start" -PassThru).Id | Set-Content server.pid'
             }
         }
-        stage('Stop Server') {
-            steps {
-                powershell '$pid = Get-Content server.pid | Select-Object -ExpandProperty Id; Stop-Process -Id $pid'
-                }
-        }
+        
     }
 }
